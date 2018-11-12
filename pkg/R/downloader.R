@@ -1,54 +1,53 @@
-download_TanDEM <- function( lon = c(9.7,13.3), lat = c(46.4,48.0), fact = 20, usr = "", pwd = "") {
+download_TanDEM <- function( lon = c(7, 16), lat = c(45, 49), fact = 5, usr = "", pwd = "") {
+## source("~/Projects/TamDEM-R/pkg/R/downloader.R")
  
     # ----------------------------------------------------------------
-    # Loading required packages. Stop if not able to load.
+    # Loading required packages.
     # ----------------------------------------------------------------
- #   cat(sprintf("   SRTM data set not available on disc: start automatic download\n"))
- #   library('raster')
- #   library('rgdal')
- #   library('sp')
+    require("raster")
  
     # ----------------------------------------------------------------
-    # SRTM is available in segments, 1 times 1 degree each.
-    # Expanding lon/lat as required for downloading each segment
+    # TanDEM-X is available in tiles, 1 times 1 degree each.
+    # Expanding lon/lat as required for downloading each tile.
     # ----------------------------------------------------------------
     ll  <- expand.grid(min(floor(lon)):max(floor(lon)), min(floor(lat)):max(floor(lat)))
     names(ll) <- c('lon','lat')
-    baseurl <- "https://download.geoservice.dlr.de/TDM90/files/"
+    baseurl <- "download.geoservice.dlr.de/TDM90/files/"
     dir.create("~/tmp/TDM90", showWarnings = FALSE)
     DEM.segments <- list()
     for ( i in 1:nrow(ll) ) {
         ## TODO: distinction between N and S, W and E
-        file <- sprintf("TDM1_DEM__30_N%02dE%03d.zip", ll$lat[i], ll$lon[i])
-        url  <- sprintf("%sN%02d/E%03d/", baseurl, ll$lat[i], round(ll$lon[i], -1) - 10)
+        file <- sprintf("TDM1_DEM__30_N%02dE%03d", ll$lat[i], ll$lon[i])
+        url  <- sprintf("%sN%02d/E%03d/", baseurl, ll$lat[i], (ll$lon[i] %/% 10) * 10)
 
         ## cat(sprintf("   Downloading %s\n",file))
-        if ( file.exists(sprintf("~tmp/TDM90/%s", file)) ) next
-        download.file(sprintf("%s%s", url, file),
-                      sprintf("~/tmp/TDM90/%s",file),
-                      method = "wget",
-                      extra  = sprintf("--user=%s --password=%s", usr, pwd))
-        system(sprintf("cd TOPO; unzip %s.zip; rm %s.zip",file,file))
+        if ( file.exists(sprintf("~tmp/TDM90/%s_DEM.tif", file)) ) next
+
+        download.file(url      = sprintf("https://%s%s.zip", url, file),
+                      destfile = sprintf("~/tmp/TDM90/%s.zip", file),
+                      method   = "wget",
+                      extra    = sprintf("--auth-no-challenge --user=%s --password=%s", usr, pwd))
+
+        system(sprintf("cd ~/tmp/TDM90; unzip %s.zip; rm %s.zip; cp %s_V01_C/DEM/%s_DEM.tif .; rm -r %s_V01_C/", file, file, file, file, file))
     }
  
     # ----------------------------------------------------------------
-    # - Reading the hgt files now
+    # - Read and merge the geotiff files
     # ----------------------------------------------------------------
-#    hgtfiles <- list.files('TOPO','.*(.hgt)$')
-#    cat(sprintf("   Found %d \'hgt\' files on disc. Read and merge them now ...\n",length(hgtfiles)))
-#    DEM <- NULL
-#    for ( file in hgtfiles ) {
-#        tmp <- raster( sprintf('TOPO/%s',file) )
-#        tmp <- aggregate(tmp,fact=fact)
-#        if ( is.null(DEM) ) { DEM <- tmp; next }
-#        DEM <- merge(DEM,tmp)
-#    }
-# 
+    geoFiles <- list.files("~/tmp/TDM90",'.*(.tif)$')
+    DEM <- NULL
+    for ( file in geoFiles ) {
+        tmp <- raster( sprintf("~/tmp/TDM90/%s", file) )
+        NAvalue(tmp) <- -32767
+        tmp <- aggregate(tmp, fact = fact)
+        if ( is.null(DEM) ) { DEM <- tmp; next }
+        DEM <- merge(DEM, tmp)
+    }
+ 
     # ----------------------------------------------------------------
     # Return Raster object
     # ----------------------------------------------------------------
-#     return( DEM )
- 
+    return( DEM )
 }
 
 
