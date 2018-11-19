@@ -1,1 +1,9 @@
- 
+Package: TanDEM
+Version: 0.1-1
+Date: 2018-11-13
+Title: An R-Interface for downloading TanDEM-X data
+Authors@R: c(person(given = "Thorsten", family = "Simon", role = c("aut", "cre"), email = "thorsten.simon@uibk.ac.at", comment = c(ORCID = "0000-0002-3778-7738")))
+Description: An R-Interface to download TanDEM-X data for htpps using wget.
+License: GPL-2 | GPL-3
+Depends: R (>= 3.4.0), raster
+

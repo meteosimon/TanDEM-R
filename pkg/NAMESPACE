@@ -1,1 +1,7 @@
+importFrom("stats", "aggregate")
+importFrom("utils", "download.file")
+import("raster")
+
+export("download_TanDEM")
+
  
