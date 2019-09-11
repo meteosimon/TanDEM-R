@@ -1,7 +1,9 @@
+[![Project Status: Suspended – Initial development has started, but there has not yet been a stable, usable release; work has been stopped for the time being but the author(s) intend on resuming work.](https://www.repostatus.org/badges/latest/suspended.svg)](https://www.repostatus.org/#suspended)
+
 # TanDEM-R
+
 R interface for downloading TanDEM-X data.
 Information on the data can be found at [DLR's geoservice](https://geoservice.dlr.de/web/dataguide/tdm90/ "geoservice.dlr.de").
 
-CAUTION: There is a huge gap of data in the European Alps Which is the region  I am most interested in.
-Thus I did not further develope the package.
+CAUTION: Development of the software is suspended!
 
