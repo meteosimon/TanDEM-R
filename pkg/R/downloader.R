@@ -1,19 +1,20 @@
 download_TanDEM <- function(lon = c(5, 16), lat = c(45, 55),
 			    usr = getOption("geoservice.usr"),
 			    srv = "geoservice.dlr",
-			    dstdir = "~/Data/TanDEM-X") {
+			    dstdir = "TanDEM-X") {
 
   # ----------------------------------------------------------------
   # TanDEM-X is available in tiles, 1 times 1 degree each.
   # Expanding lon/lat as required for downloading each tile.
   # ----------------------------------------------------------------
   ll <- expand.grid(
-      "lon" = min(floor(lon)):max(floor(lon)),
-      "lat" = min(floor(lat)):max(floor(lat))
+    "lon" = min(floor(lon)):max(floor(lon)),
+    "lat" = min(floor(lat)):max(floor(lat))
   )
-  baseurl <- "download.geoservice.dlr.de/TDM90/files/"
+  baseurl <- "https://download.geoservice.dlr.de/TDM90/files/"
   dir.create(dstdir, showWarnings = FALSE)
   dstfiles <- character(nrow(ll))
+  try_download <- numeric(nrow(ll))
   tmpdir <- tempdir()
   for ( i in 1:nrow(ll) ) {
     ## TODO: distinction between N and S, W and E
@@ -26,18 +27,18 @@ download_TanDEM <- function(lon = c(5, 16), lat = c(45, 55),
 
       ## TODO: use httr for wget using https or maybe using ftp
       tmpfile <- sprintf("%s/%s.zip", tmpdir, filebase)
-      try_download <- tryCatch(
+      try_download[i] <- tryCatch(
         download.file(
-          url      = sprintf("https://%s%s.zip", url, filebase),
+          url      = sprintf("%s%s.zip", url, filebase),
           destfile = tmpfile,
           method   = "wget",
           extra    = sprintf("--auth-no-challenge --user=%s --password=%s",
           		   usr, keyring::key_get(srv, usr))
         ),
-	error = function(e) NULL
+	error = function(e) 1
       )
 
-      if (!is.null(try_download)) {
+      if (try_download[i] == 0) {
         unzip(
           zipfile   = tmpfile,
           files     = sprintf("%s_V01_C/DEM/%s_DEM.tif", filebase, filebase),
@@ -47,12 +48,12 @@ download_TanDEM <- function(lon = c(5, 16), lat = c(45, 55),
       }
 
     } else {
-      try_download <- 0
+      try_download[i] <- 0
     }
-    dstfiles[i] <- if (is.null(try_download)) NA_character_ else dstfile
+    dstfiles[i] <- dstfile
   }
 
-  na.omit(dstfiles)
+  dstfiles[try_download == 0]
 }
 
 ### merge_TanDEM <- function(files, ...) { 
