@@ -1,5 +1,25 @@
+#' Download TanDEM-X
+#' 
+#' A download tool to retrieve TanDEM-X data.
+#'
+#' Download of tiles using \code{wget} from https.
+#' A character vector of the downloaded tif files is returned.
+#' 
+#' @param lon numeric vector of length two indicating the longitude range.
+#' @param lat numeric vector of length two indicating the latitude range.
+#' @param usr character. username.
+#' @param srv character. service.
+#' @param dstdir character. destination directory.
+#' @examples
+#' \dontrun{
+#' require("raster")
+#' x <- download_TanDEM(lon = c(7, 16), lat = c(45, 49), fact = 5, usr = "xxx", pwd = "xxx")
+#' plot(x)
+#' }
+#' @aliases download_TanDEM
+#' @keywords data
 download_TanDEM <- function(lon = c(5, 16), lat = c(45, 55),
-			    usr = getOption("geoservice.usr"),
+			    usr = getOption(srv),
 			    srv = "geoservice.dlr",
 			    dstdir = "TanDEM-X") {
 
@@ -28,7 +48,7 @@ download_TanDEM <- function(lon = c(5, 16), lat = c(45, 55),
       ## TODO: use httr for wget using https or maybe using ftp
       tmpfile <- sprintf("%s/%s.zip", tmpdir, filebase)
       try_download[i] <- tryCatch(
-        download.file(
+        utils::download.file(
           url      = sprintf("%s%s.zip", url, filebase),
           destfile = tmpfile,
           method   = "wget",
@@ -39,7 +59,7 @@ download_TanDEM <- function(lon = c(5, 16), lat = c(45, 55),
       )
 
       if (try_download[i] == 0) {
-        unzip(
+        utils::unzip(
           zipfile   = tmpfile,
           files     = sprintf("%s_V01_C/DEM/%s_DEM.tif", filebase, filebase),
           exdir     = dstdir,
@@ -55,33 +75,6 @@ download_TanDEM <- function(lon = c(5, 16), lat = c(45, 55),
 
   dstfiles[try_download == 0]
 }
-
-### merge_TanDEM <- function(files, ...) { 
-###     # ----------------------------------------------------------------
-###     # - Read and merge the geotiff files
-###     # ----------------------------------------------------------------
-###     DEM <- NULL
-###     if(return.raster) {
-### 	geoFiles <- list.files("TDM90",'.*(.tif)$')
-### 	for ( file in geoFiles ) {
-### 	    tmp <- raster( sprintf("TDM90/%s", file) )
-### 	    NAvalue(tmp) <- -32767
-### 	    tmp <- aggregate(tmp, fact = fact)
-### 	    if ( is.null(DEM) ) { DEM <- tmp; next }
-### 	    DEM <- merge(DEM, tmp)
-### 	}
-###     }
-###     # ----------------------------------------------------------------
-###     # Save netCDF
-###     # ----------------------------------------------------------------
-###     if(save.netcdf) {
-###         writeRaster(DEM, "TDM90.nc", force_v4 = TRUE, compression = 7)
-###     }
-###     # ----------------------------------------------------------------
-###     # Return Raster object
-###     # ----------------------------------------------------------------
-###     return( DEM )
-### }
 
 
 
