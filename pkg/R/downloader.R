@@ -30,18 +30,15 @@ download_TanDEM <- function(lon = c(5, 16), lat = c(45, 55),
     "lon" = min(floor(lon)):max(floor(lon)),
     "lat" = min(floor(lat)):max(floor(lat))
   )
-  baseurl <- "https://download.geoservice.dlr.de/TDM90/files/"
+  baseurl <- "https://download.geoservice.dlr.de/TDM90/files"
   dir.create(dstdir, showWarnings = FALSE)
   dstfiles <- character(nrow(ll))
   try_download <- numeric(nrow(ll))
   tmpdir <- tempdir()
   for ( i in seq_along(ll[[1]]) ) {
-    ## TODO: distinction between N and S, W and E
-    filebase <- sprintf("TDM1_DEM__30_N%02dE%03d", ll$lat[i], ll$lon[i])
-    url  <- sprintf("%sN%02d/E%03d/", baseurl, ll$lat[i], (ll$lon[i] %/% 10) * 10)
-
-    ## cat(sprintf("   Downloading %s\n",file))
-    dstfile <- sprintf("%s/%s_DEM.tif", dstdir, filebase)
+    url      <- sprintf("%s/%s/%s/", baseurl, lat_dir(ll$lat[i]), lon_dir(ll$lon[i]))
+    filebase <- sprintf("TDM1_DEM__30_%s%s", lat_dir(ll$lat[i]), lon_file(ll$lon[i]))
+    dstfile  <- sprintf("%s/%s_DEM.tif", dstdir, filebase)
     if(!file.exists(dstfile)) {
 
       ## TODO: use httr for wget using https or maybe using ftp
@@ -75,7 +72,23 @@ download_TanDEM <- function(lon = c(5, 16), lat = c(45, 55),
   dstfiles[try_download == 0]
 }
 
+lon_file <- function(lon) {
+	hs <- if (sign(lon) == -1) "W" else "E"
+	lon <- abs(lon)
+	sprintf("%s%03d", hs, lon)
+}
 
+lon_dir <- function(lon) {
+	hs <- if (sign(lon) == -1) "W" else "E"
+	lon <- abs(lon)
+	lon <- lon %/% 10 * 10
+	sprintf("%s%03d", hs, lon)
+}
 
+lat_dir <- function(lat) {
+	hs <- if (sign(lat) == -1) "S" else "N"
+	lat <- abs(lat)
+	sprintf("%s%02d", hs, lat)
+}
 
 
