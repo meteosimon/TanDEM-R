@@ -7,7 +7,7 @@
 download_TanDEM(
   lon = c(5, 16),
   lat = c(45, 55),
-  usr = getOption(srv),
+  usr = getOption("geoservice.usr"),
   srv = "geoservice.dlr",
   dstdir = "TanDEM-X"
 )
@@ -32,9 +32,7 @@ A character vector of the downloaded tif files is returned.
 }
 \examples{
 \dontrun{
-require("raster")
-x <- download_TanDEM(lon = c(7, 16), lat = c(45, 49), fact = 5, usr = "xxx", pwd = "xxx")
-plot(x)
+x <- download_TanDEM(lon = 11.5, lat = 47.5, dstdir = "test")
 }
 }
 \keyword{data}

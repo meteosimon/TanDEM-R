@@ -12,14 +12,13 @@
 #' @param dstdir character. destination directory.
 #' @examples
 #' \dontrun{
-#' require("raster")
-#' x <- download_TanDEM(lon = c(7, 16), lat = c(45, 49), fact = 5, usr = "xxx", pwd = "xxx")
-#' plot(x)
+#' x <- download_TanDEM(lon = 11.5, lat = 47.5, dstdir = "test")
 #' }
 #' @aliases download_TanDEM
 #' @keywords data
+#' @export
 download_TanDEM <- function(lon = c(5, 16), lat = c(45, 55),
-			    usr = getOption(srv),
+			    usr = getOption("geoservice.usr"),
 			    srv = "geoservice.dlr",
 			    dstdir = "TanDEM-X") {
 
@@ -36,7 +35,7 @@ download_TanDEM <- function(lon = c(5, 16), lat = c(45, 55),
   dstfiles <- character(nrow(ll))
   try_download <- numeric(nrow(ll))
   tmpdir <- tempdir()
-  for ( i in 1:nrow(ll) ) {
+  for ( i in seq_along(ll[[1]]) ) {
     ## TODO: distinction between N and S, W and E
     filebase <- sprintf("TDM1_DEM__30_N%02dE%03d", ll$lat[i], ll$lon[i])
     url  <- sprintf("%sN%02d/E%03d/", baseurl, ll$lat[i], (ll$lon[i] %/% 10) * 10)
