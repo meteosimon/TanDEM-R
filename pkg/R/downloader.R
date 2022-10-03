@@ -30,7 +30,7 @@ download_TanDEM <- function(lon = c(5, 16), lat = c(45, 55),
     "lon" = min(floor(lon)):max(floor(lon)),
     "lat" = min(floor(lat)):max(floor(lat))
   )
-  baseurl <- "https://download.geoservice.dlr.de/TDM90/files"
+  baseurl <- "https://download.geoservice.dlr.de/TDM90/files/DEM/"
   dir.create(dstdir, showWarnings = FALSE)
   dstfiles <- character(nrow(ll))
   try_download <- numeric(nrow(ll))
