@@ -1,5 +1,5 @@
 Package: TanDEM
-Version: 0.1-2
+Version: 0.1-3
 Date: 2020-05-27
 Title: An R-Interface for downloading TanDEM-X data
 Authors@R: c(person(given = "Thorsten", family = "Simon",
